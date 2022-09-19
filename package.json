@@ -3,19 +3,30 @@
   "version": "1.0.0",
   "description": "",
   "source": "src/index.html",
+  "targets": {
+    "default": {
+      "distDir": "./docs"
+    }
+  },
   "scripts": {
-    "dev": "parcel"
+    "dev": "parcel",
+    "build": "parcel build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@date-io/date-fns": "^2.15.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.3",
     "@mui/material": "^5.10.5",
+    "@mui/x-date-pickers": "^5.0.2",
+    "date-fns": "^2.29.3",
     "parcel": "^2.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router": "^6.4.0"
+    "react-router": "^6.4.0",
+    "react-router-dom": "^6.4.0"
   },
   "devDependencies": {
     "process": "^0.11.10"
