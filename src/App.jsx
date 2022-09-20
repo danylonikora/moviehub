@@ -3,51 +3,64 @@ import Layout from "./components/Layout";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import ukLocale from "date-fns/locale/uk";
+import Auth from "./components/Auth";
+import PreferencesForm from "./components/PreferencesForm";
+import MovieSchedule from "./components/MovieSchedule";
 
-const authContextDefaultValue = { name: "", room: -1, stayDuration: -1 };
-export const AuthContext = React.createContext(authContextDefaultValue);
-
-function AuthContextProvider({ children }) {
-  const [fields, setFields] = React.useState(authContextDefaultValue);
-
-  return (
-    <AuthContext.Provider value={{ fields, setFields }}>
-      <LocalizationProvider
-        dateAdapter={AdapterDateFns}
-        adapterLocale={ukLocale}
-      >
-        {children}
-      </LocalizationProvider>
-    </AuthContext.Provider>
-  );
-}
-
-const preferencesFormDefaultValue = {
-  minimumRating: 6,
-  genres: [],
-  watchDates: [],
-};
-export const PreferencesFormContext = React.createContext(
-  preferencesFormDefaultValue
-);
-
-function PreferencesFormContextProvider({ children }) {
-  const [fields, setFields] = React.useState(preferencesFormDefaultValue);
-
-  return (
-    <PreferencesFormContext.Provider value={{ fields, setFields }}>
-      {children}
-    </PreferencesFormContext.Provider>
-  );
-}
+const routeHistory = [];
 
 function App() {
+  const [currentPage, setCurrentPage] = React.useState("auth");
+  const [authFields, setAuthFields] = React.useState({
+    name: "",
+    room: -1,
+    stayDuration: -1,
+  });
+  const [formFields, setFormFields] = React.useState({
+    genres: [],
+    minimumRating: 6,
+    watchDates: [],
+    sortBy: "moviemeter",
+  });
+  const [movies, setMovies] = React.useState(null);
+  const [isFetching, setIsFetching] = React.useState(false);
+
+  function redirectTo(page) {
+    routeHistory.push(page);
+    window.scrollTo(0, 0);
+    setCurrentPage(page);
+  }
+
   return (
-    <AuthContextProvider>
-      <PreferencesFormContextProvider>
-        <Layout />
-      </PreferencesFormContextProvider>
-    </AuthContextProvider>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ukLocale}>
+      <Layout
+        currentPage={currentPage}
+        redirectTo={redirectTo}
+        routeHistory={routeHistory}
+      >
+        {currentPage == "auth" && (
+          <Auth
+            setAppFields={setAuthFields}
+            appFields={authFields}
+            redirectTo={redirectTo}
+          />
+        )}
+        {currentPage == "form" && (
+          <PreferencesForm
+            setAppFields={setFormFields}
+            appFields={formFields}
+            authFields={authFields}
+            redirectTo={redirectTo}
+            setMovies={setMovies}
+            setIsFetching={setIsFetching}
+            isFetching={isFetching}
+          />
+        )}
+        {currentPage == "schedule" && (
+          <MovieSchedule movies={movies} formFields={formFields} />
+        )}
+      </Layout>
+    </LocalizationProvider>
   );
 }
 

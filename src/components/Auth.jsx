@@ -3,18 +3,15 @@ import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { AuthContext } from "../App";
-import { Link } from "react-router-dom";
 
-function Auth() {
-  const authInfo = React.useContext(AuthContext);
-  const [fields, setFields] = React.useState(authInfo.fields);
+function Auth({ setAppFields, appFields, redirectTo }) {
+  const [fields, setFields] = React.useState(appFields);
 
   return (
     <Stack spacing={2} sx={{ alignItems: "center", margin: "auto" }}>
       <Typography variant="h6" sx={{ fontWeight: 500, color: "red" }}>
-        Шоб ничего не наебнулось заполняй все поля, а если наебнулось -
-        перезагрузи страницу и побробуй заново
+        Шоб ничего не наебнулось заполняй все поля, а если все таки наебнулось -
+        перезагрузи страницу и побробуй снова
       </Typography>
       <Typography variant="h6" sx={{ fontWeight: 500 }}>
         Авторизація
@@ -44,9 +41,10 @@ function Auth() {
       />
       <Button
         variant="contained"
-        to="/form"
-        component={Link}
-        onClick={() => authInfo.setFields(fields)}
+        onClick={() => {
+          setAppFields(fields);
+          redirectTo("form");
+        }}
       >
         Увійти
       </Button>
