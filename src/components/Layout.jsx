@@ -2,8 +2,6 @@ import React from "react";
 import Container from "@mui/material/Container";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-// import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-// import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -48,18 +46,18 @@ function Layout({ children, currentPage, redirectTo, routeHistory }) {
               <ArrowForwardIcon />
             </IconButton>
           </div>
-          <Typography variant="h6">Название?????</Typography>
+          <Typography variant="h6">&#129375; Вареничная Насти</Typography>
         </Toolbar>
       </AppBar>
       <Container
         sx={{
-          height: "100vh",
           display: "flex",
           flexDirection: "column",
           fontFamily: "Roboto",
+          minHeight: "100vh",
         }}
       >
-        <main>{children}</main>
+        {children}
       </Container>
     </>
   );

@@ -18,13 +18,16 @@
     "@date-io/date-fns": "^2.15.0",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@hookform/resolvers": "^2.9.8",
     "@mui/icons-material": "^5.10.3",
     "@mui/material": "^5.10.5",
     "@mui/x-date-pickers": "^5.0.2",
     "date-fns": "^2.29.3",
     "parcel": "^2.7.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.36.0",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "process": "^0.11.10"

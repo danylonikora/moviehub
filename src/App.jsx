@@ -12,15 +12,17 @@ const routeHistory = [];
 function App() {
   const [currentPage, setCurrentPage] = React.useState("auth");
   const [authFields, setAuthFields] = React.useState({
-    name: "",
-    room: -1,
-    stayDuration: -1,
+    name: undefined,
+    room: undefined,
+    stayDuration: undefined,
   });
   const [formFields, setFormFields] = React.useState({
     genres: [],
     minimumRating: 6,
+    minimumReleaseYear: 2010,
     watchDates: [],
     sortBy: "moviemeter",
+    country: "none",
   });
   const [movies, setMovies] = React.useState(null);
   const [isFetching, setIsFetching] = React.useState(false);
