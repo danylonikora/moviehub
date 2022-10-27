@@ -21,6 +21,7 @@ function App() {
     minimumRating: 6,
     minimumReleaseYear: 2010,
     watchDates: [],
+    preferredWathTimes: [],
     sortBy: "moviemeter",
     country: "none",
   });

@@ -7,8 +7,7 @@ function MovieSchedule({ movies, formFields }) {
   return (
     <Stack spacing={2} sx={{ paddingTop: "8px" }}>
       <Typography variant="h5" sx={{ alignSelf: "center" }}>
-        Ваш графік перегляду (могут попадаться дубликаты если выбирать больше 1
-        жанра &#129335;)
+        Ваш графік перегляду
       </Typography>
       <Box
         sx={{

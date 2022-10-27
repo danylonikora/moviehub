@@ -46,7 +46,7 @@ function Layout({ children, currentPage, redirectTo, routeHistory }) {
               <ArrowForwardIcon />
             </IconButton>
           </div>
-          <Typography variant="h6">&#129375; Вареничная Насти</Typography>
+          <Typography variant="h6">&#127909; Топ Стартап</Typography>
         </Toolbar>
       </AppBar>
       <Container

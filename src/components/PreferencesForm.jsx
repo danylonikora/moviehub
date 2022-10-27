@@ -19,7 +19,6 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { API } from "../constants/api";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
-import spinnerSvg from "../assets/spinner.svg";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -30,6 +29,9 @@ import FormGroup from "@mui/material/FormGroup";
 import FormHelperText from "@mui/material/FormHelperText";
 import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
+import Confetti from "./Confetti";
+import Dialog from "@mui/material/Dialog";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const dateFnsAdapter = new DateFnsAdapter({ locale: "uk" });
 
@@ -58,6 +60,15 @@ const MOVIE_GENRES = [
   { fieldName: "sport", displayName: "Спорт" },
   { fieldName: "war", displayName: "Війна" },
   // { fieldName: "western", displayName: "Вестерни" },
+];
+
+const WATCH_TIMES = [
+  "10:00 - 12:00",
+  "13:00 - 15:00",
+  "15:30 - 17:30",
+  "18:30 - 20:30",
+  "21:00 - 23:00",
+  "23:30 - 01:30",
 ];
 
 const MOVIE_COUNTRIES = [
@@ -94,6 +105,9 @@ const preferencesFormSchema = Yup.object({
   sortBy: Yup.string(),
   country: Yup.string(),
   watchDates: Yup.array().min(1, "Оберіть хоча б одну дату"),
+  preferredWathTimes: Yup.array()
+    .min(1, "Оберіть хоча б одну опцію")
+    .max(3, "Не більше 3"),
 });
 
 function PreferencesForm({
@@ -112,13 +126,21 @@ function PreferencesForm({
       defaultValues: appFields,
       resolver: yupResolver(preferencesFormSchema),
     });
+  const [showConfetti, setShowConfetti] = React.useState(false);
+  const [showDialog, setShowDialog] = React.useState(false);
+
   const fields = watch();
   register("watchDates");
 
   function submitHandler(finalFields) {
+    setShowConfetti(true);
+    setShowDialog(true);
     setAppFields(finalFields);
+  }
+
+  function moveToSchedule() {
     setIsFetching(true);
-    const { watchDates, genres } = finalFields;
+    const { watchDates, genres } = appFields;
     const filmsPerGenre = watchDates.length / genres.length;
     const areGenresMoreThanWatchDates = filmsPerGenre < 1;
     let result;
@@ -147,13 +169,6 @@ function PreferencesForm({
             []
           )
         );
-        console.log(
-          "reduced: ",
-          parsedResults.reduce(
-            (allFilms, nextFilm) => [...allFilms, nextFilm.results],
-            []
-          )
-        );
         setIsFetching(false);
         redirectTo("schedule");
       });
@@ -163,21 +178,20 @@ function PreferencesForm({
         `${API.url}/AdvancedSearch/${
           API.key
         }?title_type=feature&genres=${genre}&user_rating=${
-          finalFields.minimumRating
-        },&count=${count}&sort=${finalFields.sortBy},${
-          finalFields.sortBy == "moviemeter" ? "asc" : "desc"
+          appFields.minimumRating
+        },&count=${count}&sort=${appFields.sortBy},${
+          appFields.sortBy == "moviemeter" ? "asc" : "desc"
         }&num_votes=${
-          finalFields.country == "ua" ? "300" : "1000"
-        },&release_date=${finalFields.minimumReleaseYear},${
-          finalFields.country != "none"
-            ? "&countries=" + finalFields.country
-            : ""
+          appFields.country == "ua" ? "300" : "1000"
+        },&release_date=${appFields.minimumReleaseYear},${
+          appFields.country != "none" ? "&countries=" + appFields.country : ""
         }`
       );
     }
   }
 
   const openWatchDatesPickerButtonRef = React.useRef(null);
+  const dialogRootRef = React.useRef(null);
 
   return (
     <Stack
@@ -197,6 +211,27 @@ function PreferencesForm({
       component="form"
       onSubmit={handleSubmit(submitHandler)}
     >
+      {showConfetti && <Confetti containerRef={dialogRootRef} />}
+      <Dialog open={showDialog} ref={dialogRootRef}>
+        <Stack sx={{ padding: "24px" }} spacing={2}>
+          <Typography variant="h5">
+            Це все &#129395; Дякуємо за ваш час!{" "}
+          </Typography>
+          <Typography variant="body1">
+            Далі вам буде показано приклад згенерованого розкладу фільмів
+          </Typography>
+          <Box sx={{ display: "flex", gap: "16px" }}>
+            <Button
+              variant="contained"
+              sx={{ alignSelf: "start" }}
+              onClick={moveToSchedule}
+            >
+              Зрозуміло
+            </Button>
+            {isFetching && <CircularProgress size={36.5} />}
+          </Box>
+        </Stack>
+      </Dialog>
       <Typography variant="h5" sx={{ fontWeight: 500, marginTop: "8px" }}>
         {authFields.name}, заповніть цю форму для того, щоб ми могли підібрати
         для вас оптимальний список фільмів
@@ -274,30 +309,6 @@ function PreferencesForm({
       <Divider />
       <FormControl error={"watchDates" in formState.errors} sx={{ gap: "8px" }}>
         <FormLabel>Бажані дати перегляду</FormLabel>
-        {fields.watchDates.length > 0 && (
-          <List sx={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-            {fields.watchDates
-              .sort((date1, date2) =>
-                compareAsc(parseDate(date1), parseDate(date2))
-              )
-              .map((date) => (
-                <ListItem key={date} sx={{ padding: 0, width: "auto" }}>
-                  <Chip
-                    label={date}
-                    onDelete={() =>
-                      setValue(
-                        "watchDates",
-                        fields.watchDates.filter(
-                          (fieldDate) => date != fieldDate
-                        ),
-                        { shouldValidate: true }
-                      )
-                    }
-                  />
-                </ListItem>
-              ))}
-          </List>
-        )}
         <DatePicker
           open={isWatchDatesPickerOpen}
           value={null}
@@ -348,6 +359,57 @@ function PreferencesForm({
             {formState.errors.watchDates?.message}
           </FormHelperText>
         )}
+        {fields.watchDates.length > 0 && (
+          <List sx={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {fields.watchDates
+              .sort((date1, date2) =>
+                compareAsc(parseDate(date1), parseDate(date2))
+              )
+              .map((date) => (
+                <ListItem key={date} sx={{ padding: 0, width: "auto" }}>
+                  <Chip
+                    label={date}
+                    onDelete={() =>
+                      setValue(
+                        "watchDates",
+                        fields.watchDates.filter(
+                          (fieldDate) => date != fieldDate
+                        ),
+                        { shouldValidate: true }
+                      )
+                    }
+                  />
+                </ListItem>
+              ))}
+          </List>
+        )}
+      </FormControl>
+      <Divider />
+      <FormControl
+        error={"preferredWathTimes" in formState.errors}
+        sx={{ gap: "8px" }}
+      >
+        <FormLabel component="legend">Оберіть бажані часи перегляду</FormLabel>
+        <FormGroup row component="fieldset">
+          {WATCH_TIMES.map((time) => (
+            <FormControlLabel
+              key={time}
+              label={time}
+              control={
+                <Checkbox
+                  {...register("preferredWathTimes")}
+                  value={time}
+                  checked={fields.preferredWathTimes.includes(time)}
+                />
+              }
+            />
+          ))}
+        </FormGroup>
+        {"preferredWathTimes" in formState.errors && (
+          <FormHelperText>
+            {formState.errors.preferredWathTimes?.message}
+          </FormHelperText>
+        )}
       </FormControl>
       <Divider />
       <FormControl sx={{ gap: "8px" }}>
@@ -374,32 +436,14 @@ function PreferencesForm({
         </RadioGroup>
       </FormControl>
       <Divider />
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-        }}
+      <Button
+        variant="contained"
+        endIcon={<ArrowForwardIcon />}
+        disabled={showDialog}
+        type="submit"
       >
-        <Button
-          variant="contained"
-          endIcon={<ArrowForwardIcon />}
-          disabled={isFetching}
-          type="submit"
-        >
-          Продовжити
-        </Button>
-        {isFetching && (
-          <img
-            src={spinnerSvg}
-            style={{
-              height: "30px",
-              width: "30px",
-            }}
-          />
-        )}
-      </Box>
+        Продовжити
+      </Button>
     </Stack>
   );
 }
